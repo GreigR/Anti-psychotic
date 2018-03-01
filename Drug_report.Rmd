@@ -1,0 +1,19 @@
+---
+title: "Anti-psychotic drug analysis"
+author: "Dr Greig Russell"
+date: "2 March 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+#Anti-psychotic drug analysis
+
+This analysis describes the anti-psychotic usage of 100 patients from the mental health service. It will describe the characteristics of the sample and the anti-psychotic medication presecribed for them. This description will provide the base to understand the relationships between anti-psychotic presecriptions and features of the population.
+
+##Summary
+
+# Load the tidyverse
+library(tidyverse)
