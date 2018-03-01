@@ -15,5 +15,43 @@ This analysis describes the anti-psychotic usage of 100 patients from the mental
 
 ##Summary
 
+```{r load_the_libraries, warning=FALSE, message=FALSE}
 # Load the tidyverse
 library(tidyverse)
+
+# Load any axillary libraries
+library(nullabor)
+library(car)
+```
+
+```{r load_the_data, warning=FALSE, message=FALSE}
+Drug <- read.csv("/home/greig/R-projects/Clinical_audits/Drug/Anti-psychotic/Drug.csv", na.strings = "")
+
+Drug <- Drug %>% 
+  rename(Drug1_NZFpercentage = Drug1_NZFpercentage.)
+```
+
+```{r basic_demographic_data, warning=FALSE, message=FALSE}
+summary(Drug)
+```
+
+
+##Sample demographics
+
+###Age distribution
+```{r age, warning=FALSE, message=FALSE}
+ggplot(data = Drug) +
+  geom_density(aes(x = Age), fill = "red") +
+  labs(title = "Density plot of cohort age") +
+  theme_minimal()
+```
+
+
+###Gender
+```{r}
+ggplot(data = Drug) +
+  geom_boxplot(aes(x = Gender, y = Age, fill = Gender)) +
+  labs(title = "Boxplot of cohort age by gender") +
+  theme_minimal()
+```
+

@@ -4,4 +4,4 @@
 .Ruserdata
 *.csv
 Drug.Rmd
-Drug.nb.html
+*.html
