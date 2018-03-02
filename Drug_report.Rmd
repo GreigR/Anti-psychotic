@@ -22,6 +22,7 @@ library(tidyverse)
 # Load any axillary libraries
 library(nullabor)
 library(car)
+library(gmodels)
 ```
 
 ```{r load_the_data, warning=FALSE, message=FALSE}
@@ -132,7 +133,35 @@ ggplot(data = Poly, aes(x = Poly_sum_reg_NZFpercentage, y = Discharge_Reg_NZF_Pe
 ```{r discgarge2, warning=FALSE, message=FALSE}
 Model3 <- lm(Discharge_Reg_NZF_Percentage ~ Poly_sum_reg_NZFpercentage, data = Poly)
 summary(Model3)
-plot(Model3)
-plot(residuals(Model3))
 ```
 
+Revealing a highly significant relationship between the doses of drugs received during an admission and those received following discharge
+
+###Relationship between Ethnicity and Depot anti-psychotic drug usage
+```{r depot, warning=FALSE, message=FALSE}
+Poly <- Drug %>%
+  filter(Drug1_route !=  "iM Depot", Poly_Num_drugs < 4, (Ethnicity == "NZ European" | Ethnicity == "NZ Maori"))
+CrossTable(Poly$Ethnicity, Poly$Drug1_route, prop.r = FALSE, prop.c = FALSE, prop.chisq = FALSE, chisq = TRUE)
+```
+
+Revealing that NZ Maori are statistically more likely to receive depot anti-psychotic medication.
+
+###Relationship between Total anti-psychotic drug usage during an admission and ethnicity
+```{r drug_ethnicity, warning=FALSE, message=FALSE}
+Drug %>% 
+  ggplot(aes(x = Ethnicity, y = Poly_sum_reg_NZFpercentage, fill = Ethnicity)) +
+  geom_boxplot() +
+  labs(title = "Total antipsychotic drug usage by ethnicity", y = "Total inpatient anti-psychotic dose as % NZULM") + 
+  theme_minimal()
+```
+
+```{r drug_ethinicity2, warning=FALSE, message=FALSE}
+leveneTest(Poly$Poly_sum_reg_NZFpercentage, Poly$Ethnicity, center = mean)
+```
+
+```{r drug_ethnicity3, warning=FALSE, message=FALSE}
+model4 <- aov(Poly_sum_reg_NZFpercentage ~ Ethnicity, data = Drug)
+summary(model4)
+```
+
+Suggesting there is no difference between the drug dosage received during an admission on the basis of ethnicity
