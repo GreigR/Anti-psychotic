@@ -140,13 +140,14 @@ Revealing a highly significant relationship between the doses of drugs received 
 ###Relationship between Ethnicity and Depot anti-psychotic drug usage
 ```{r depot, warning=FALSE, message=FALSE}
 Poly <- Drug %>%
-  filter(Drug1_route !=  "iM Depot", Poly_Num_drugs < 4, (Ethnicity == "NZ European" | Ethnicity == "NZ Maori"))
+  filter(Poly_Num_drugs < 4, (Ethnicity == "NZ European" | Ethnicity == "NZ Maori"))
+Poly$Drug1_route <- str_to_upper(Poly$Drug1_route)
 CrossTable(Poly$Ethnicity, Poly$Drug1_route, prop.r = FALSE, prop.c = FALSE, prop.chisq = FALSE, chisq = TRUE)
 ```
 
 Revealing that NZ Maori are statistically more likely to receive depot anti-psychotic medication.
 
-###Relationship between Total anti-psychotic drug usage during an admission and ethnicity
+###Relationship between total anti-psychotic drug usage during an admission and ethnicity
 ```{r drug_ethnicity, warning=FALSE, message=FALSE}
 Drug %>% 
   ggplot(aes(x = Ethnicity, y = Poly_sum_reg_NZFpercentage, fill = Ethnicity)) +
