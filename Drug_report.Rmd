@@ -121,3 +121,18 @@ Model2 <- aov(Poly_sum_reg_NZFpercentage ~ Gender, data = Poly)
 summary(Model2)
 ```
 
+###Relationship between drug levels during inpatient and on discharge
+```{r discharge1, warning=FALSE, message=FALSE}
+ggplot(data = Poly, aes(x = Poly_sum_reg_NZFpercentage, y = Discharge_Reg_NZF_Percentage)) +
+  geom_point() +
+  geom_smooth() +
+  labs(Title = "Relationship between inpatient drug levels and those following discharge")
+```
+
+```{r discgarge2, warning=FALSE, message=FALSE}
+Model3 <- lm(Discharge_Reg_NZF_Percentage ~ Poly_sum_reg_NZFpercentage, data = Poly)
+summary(Model3)
+plot(Model3)
+plot(residuals(Model3))
+```
+
