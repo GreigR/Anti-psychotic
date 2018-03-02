@@ -39,7 +39,7 @@ summary(Drug)
 ##Sample demographics
 
 ###Age distribution
-```{r age, warning=FALSE, message=FALSE}
+```{r age1, warning=FALSE, message=FALSE}
 ggplot(data = Drug) +
   geom_density(aes(x = Age), fill = "red") +
   labs(title = "Density plot of cohort age") +
@@ -48,10 +48,55 @@ ggplot(data = Drug) +
 
 
 ###Gender
-```{r}
+```{r gender1, warning=FALSE, message=FALSE}
+Drug %>% 
+  group_by(Gender) %>% 
+  summarise(Count = n()) %>% 
+  ggplot(aes(x = Gender, y = Count, fill = Gender)) +
+  geom_col() +
+  labs(title = "Gender distribution") +
+  theme_minimal()
+```
+
+###Age by age
+```{r gender2, warning=FALSE, message=FALSE}
 ggplot(data = Drug) +
   geom_boxplot(aes(x = Gender, y = Age, fill = Gender)) +
   labs(title = "Boxplot of cohort age by gender") +
   theme_minimal()
 ```
+
+###Total regular anti-psychotic dosage by number of drug types
+```{r Drug1, warning=FALSE, message=FALSE}
+Poly <- Drug %>% 
+  filter(Poly_Num_drugs < 4)
+Poly$Poly_Num_drugs <- as.factor(Poly$Poly_Num_drugs)
+```
+
+
+```{r Drug2, warning=FALSE, message=FALSE}
+ggplot(data = Poly) +
+  geom_boxplot(aes(x = Poly_Num_drugs, y = Poly_sum_reg_NZFpercentage, fill = Poly_Num_drugs)) +
+  labs(title = "Total dosage of presecribed anti-psychotic by number of drug types used") +
+  theme_minimal()
+```
+
+
+Prior to testing for significance by ANOVA, Levene test performed to conform homogenity of variance
+```{r levene1, warning=FALSE, message=FALSE}
+#Levene test
+
+leveneTest(Poly$Poly_sum_reg_NZFpercentage, Poly$Poly_Num_drugs, center = mean)
+```
+
+
+####ANOVA test
+
+```{r anova1, warning=FALSE, message=FALSE}
+Model1 <- aov(Poly_sum_reg_NZFpercentage ~ Poly_Num_drugs, data = Poly)
+summary(Model1)
+```
+
+Supporting the hypothesis that the number of drug types presecribed is significantly positively correlated with the total dosage of anti-psychotics received per day.
+
 
