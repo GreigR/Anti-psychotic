@@ -33,7 +33,7 @@ Drug <- Drug %>%
 ```
 
 ```{r basic_demographic_data, warning=FALSE, message=FALSE}
-summary(Drug)
+# summary(Drug)
 ```
 
 
@@ -59,7 +59,7 @@ Drug %>%
   theme_minimal()
 ```
 
-###Age by age
+###Age by Gender
 ```{r gender2, warning=FALSE, message=FALSE}
 ggplot(data = Drug) +
   geom_boxplot(aes(x = Gender, y = Age, fill = Gender)) +
@@ -72,8 +72,13 @@ ggplot(data = Drug) +
 Poly <- Drug %>% 
   filter(Poly_Num_drugs < 4)
 Poly$Poly_Num_drugs <- as.factor(Poly$Poly_Num_drugs)
+
+Excess <- Drug %>%
+  filter(Poly_sum_reg_NZFpercentage > 1) %>% 
+  summarise(Count = n())
 ```
 
+In this cohort of `r nrow(Drug)` clients, `r Excess$Count` reeived in excess of the NZULM recommended maximum dosage of regular antipsychotic medications not including "prn" or as required supplimentary anti-psychotic medication dosages.
 
 ```{r Drug2, warning=FALSE, message=FALSE}
 ggplot(data = Poly) +
@@ -130,7 +135,7 @@ ggplot(data = Poly, aes(x = Poly_sum_reg_NZFpercentage, y = Discharge_Reg_NZF_Pe
   labs(Title = "Relationship between inpatient drug levels and those following discharge")
 ```
 
-```{r discgarge2, warning=FALSE, message=FALSE}
+```{r discharge2, warning=FALSE, message=FALSE}
 Model3 <- lm(Discharge_Reg_NZF_Percentage ~ Poly_sum_reg_NZFpercentage, data = Poly)
 summary(Model3)
 ```
