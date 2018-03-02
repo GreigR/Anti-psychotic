@@ -100,3 +100,24 @@ summary(Model1)
 Supporting the hypothesis that the number of drug types presecribed is significantly positively correlated with the total dosage of anti-psychotics received per day.
 
 
+###Total regular anti-psychotic dosage by gender
+```{r gender1a, warning=FALSE, message=FALSE}
+ggplot(data = Poly) +
+  geom_boxplot(aes(x = Gender, y = Poly_sum_reg_NZFpercentage, fill = Gender)) +
+  labs(title = "Total dosage of presecribed anti-psychotic by gender of the client") +
+  theme_minimal()
+```
+
+Again testing for the homogenity of the variance;
+```{r gender2a, message=FALSE, warning=FALSE}
+# Levene test
+
+leveneTest(Poly$Poly_sum_reg_NZFpercentage, Poly$Gender, center = mean)
+
+```
+
+```{r gender3, message=FALSE, warning=FALSE}
+Model2 <- aov(Poly_sum_reg_NZFpercentage ~ Gender, data = Poly)
+summary(Model2)
+```
+
