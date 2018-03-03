@@ -11,9 +11,13 @@ knitr::opts_chunk$set(echo = FALSE)
 
 #Anti-psychotic drug analysis
 
-This analysis describes the anti-psychotic usage of 100 patients from the mental health service. It will describe the characteristics of the sample and the anti-psychotic medication presecribed for them. This description will provide the base to understand the relationships between anti-psychotic presecriptions and features of the population.
+This analysis describes the anti-psychotic usage of 100 patients from the mental health service. It will describe the characteristics of the sample and the anti-psychotic medication prescribed for them. This description will provide the base to understand the relationships between anti-psychotic prescriptions and features of the population.
 
 ##Summary
+This study has found that more females are admitted with psychosis, and these females are statistically significantly older (p = 0.008). 22% of this sample received greater than the recommended dose of anti-psychotics whilst an inpatient. The more varieties of anti-psychotic medication that a patient was prescribed, the more likely they were to exceed the maximum recommended dose (p = 0.002). There was no significant relationship between total dosage and gender (p = 0.07) or ethnicity (p = 0.22). In the sub-group who were presecribed supra-maximal dosage there was no difference by Gender (p = 0.49) or Ethnicity (p = 0.53)
+
+There is a relationship between total dosage prescribed as an in-patient and dosage on discharge (p = 0.01). NZ Maori are statistically more likely to receive intra-muscular medication than NZ European (p = 0.04). 
+
 
 ```{r load_the_libraries, warning=FALSE, message=FALSE}
 # Load the tidyverse
@@ -23,6 +27,7 @@ library(tidyverse)
 library(nullabor)
 library(car)
 library(gmodels)
+library(broom)
 ```
 
 ```{r load_the_data, warning=FALSE, message=FALSE}
@@ -47,6 +52,24 @@ ggplot(data = Drug) +
   theme_minimal()
 ```
 
+```{r Age_model, warning=FALSE, message=FALSE}
+Boy <- Drug %>%
+  filter(Gender == "Male")
+
+Girl <- Drug %>%
+  filter(Gender == "Female")
+
+Count_boy <- Boy %>%
+  summarise(Count = n(), Mean_age = mean(Age, na.rm = TRUE))
+
+Count_girl <- Girl %>%
+  summarise(Count = n(), Mean_age = mean(Age, na.rm = TRUE))
+
+Age_model <- tidy(t.test(Boy$Age, Girl$Age))
+
+```
+
+As the Box plot illustrates there are more females (n = ```r Count_girl$Count```) with a higher mean age of ```r round(Count_girl$Mean_age, digit = 0)``` in this sample than males (n = ```r Count_boy$Count```) whose mean age is ```r round(Count_boy$Mean_age, digit = 0)```. This age difference is significant (p = ```r round(Age_model$p.value, digits = 3)```).  
 
 ###Gender
 ```{r gender1, warning=FALSE, message=FALSE}
@@ -78,7 +101,7 @@ Excess <- Drug %>%
   summarise(Count = n())
 ```
 
-In this cohort of `r nrow(Drug)` clients, `r Excess$Count` reeived in excess of the NZULM recommended maximum dosage of regular antipsychotic medications not including "prn" or as required supplimentary anti-psychotic medication dosages.
+In this cohort of `r nrow(Drug)` clients, `r Excess$Count` received in excess of the NZULM recommended maximum dosage of regular anti-psychotic medications not including "prn" or as required supplementary anti-psychotic medication dosages.
 
 ```{r Drug2, warning=FALSE, message=FALSE}
 ggplot(data = Poly) +
@@ -88,7 +111,7 @@ ggplot(data = Poly) +
 ```
 
 
-Prior to testing for significance by ANOVA, Levene test performed to conform homogenity of variance
+Prior to testing for significance by ANOVA, Levene test performed to conform homogeneity of variance
 ```{r levene1, warning=FALSE, message=FALSE}
 #Levene test
 
@@ -96,14 +119,12 @@ leveneTest(Poly$Poly_sum_reg_NZFpercentage, Poly$Poly_Num_drugs, center = mean)
 ```
 
 
-####ANOVA test
-
 ```{r anova1, warning=FALSE, message=FALSE}
 Model1 <- aov(Poly_sum_reg_NZFpercentage ~ Poly_Num_drugs, data = Poly)
 summary(Model1)
 ```
 
-Supporting the hypothesis that the number of drug types presecribed is significantly positively correlated with the total dosage of anti-psychotics received per day.
+Supporting the hypothesis that the number of drug types prescribed is significantly positively correlated with the total dosage of anti-psychotics received per day.
 
 
 ###Total regular anti-psychotic dosage by gender
@@ -114,7 +135,7 @@ ggplot(data = Poly) +
   theme_minimal()
 ```
 
-Again testing for the homogenity of the variance;
+Again testing for the homogeneity of the variance;
 ```{r gender2a, message=FALSE, warning=FALSE}
 # Levene test
 
@@ -126,6 +147,60 @@ leveneTest(Poly$Poly_sum_reg_NZFpercentage, Poly$Gender, center = mean)
 Model2 <- aov(Poly_sum_reg_NZFpercentage ~ Gender, data = Poly)
 summary(Model2)
 ```
+
+###Relationship between total anti-psychotic drug usage during an admission and ethnicity
+```{r drug_ethnicity, warning=FALSE, message=FALSE}
+Drug %>% 
+  ggplot(aes(x = Ethnicity, y = Poly_sum_reg_NZFpercentage, fill = Ethnicity)) +
+  geom_boxplot() +
+  labs(title = "Total antipsychotic drug usage by ethnicity", y = "Total inpatient anti-psychotic dose as % NZULM") + 
+  theme_minimal()
+```
+
+```{r drug_ethinicity2, warning=FALSE, message=FALSE}
+leveneTest(Poly$Poly_sum_reg_NZFpercentage, Poly$Ethnicity, center = mean)
+```
+
+```{r drug_ethnicity3, warning=FALSE, message=FALSE}
+model4 <- aov(Poly_sum_reg_NZFpercentage ~ Ethnicity, data = Drug)
+summary(model4)
+```
+
+Suggesting there is no difference between the drug dosage received during an admission on the basis of ethnicity
+
+###Analysis of the super maximal dosage cohort
+
+```{r Super_max, warning=FALSE, message=FALSE}
+Super_max_Maori <- Drug %>%
+  filter(Poly_sum_reg_NZFpercentage > 1,
+         Ethnicity == "NZ Maori")
+
+Super_max_European <- Drug %>%
+  filter(Poly_sum_reg_NZFpercentage > 1,
+         Ethnicity == "NZ European")
+
+Super_max_boy <- Drug %>%
+  filter(Poly_sum_reg_NZFpercentage > 1,
+         Gender == "Male")
+
+Super_max_girl <- Drug %>%
+  filter(Poly_sum_reg_NZFpercentage > 1,
+         Gender == "Female")
+
+Drug %>%
+  filter(Poly_sum_reg_NZFpercentage > 1) %>% 
+  count(Ethnicity)
+
+Drug %>%
+  filter(Poly_sum_reg_NZFpercentage > 1) %>%
+  count(Gender)
+
+t.test(Super_max_Maori$Poly_sum_reg_NZFpercentage, Super_max_European$Poly_sum_reg_NZFpercentage)
+
+t.test(Super_max_girl$Poly_sum_reg_NZFpercentage, Super_max_boy$Poly_sum_reg_NZFpercentage)
+```
+
+
 
 ###Relationship between drug levels during inpatient and on discharge
 ```{r discharge1, warning=FALSE, message=FALSE}
@@ -152,22 +227,3 @@ CrossTable(Poly$Ethnicity, Poly$Drug1_route, prop.r = FALSE, prop.c = FALSE, pro
 
 Revealing that NZ Maori are statistically more likely to receive depot anti-psychotic medication.
 
-###Relationship between total anti-psychotic drug usage during an admission and ethnicity
-```{r drug_ethnicity, warning=FALSE, message=FALSE}
-Drug %>% 
-  ggplot(aes(x = Ethnicity, y = Poly_sum_reg_NZFpercentage, fill = Ethnicity)) +
-  geom_boxplot() +
-  labs(title = "Total antipsychotic drug usage by ethnicity", y = "Total inpatient anti-psychotic dose as % NZULM") + 
-  theme_minimal()
-```
-
-```{r drug_ethinicity2, warning=FALSE, message=FALSE}
-leveneTest(Poly$Poly_sum_reg_NZFpercentage, Poly$Ethnicity, center = mean)
-```
-
-```{r drug_ethnicity3, warning=FALSE, message=FALSE}
-model4 <- aov(Poly_sum_reg_NZFpercentage ~ Ethnicity, data = Drug)
-summary(model4)
-```
-
-Suggesting there is no difference between the drug dosage received during an admission on the basis of ethnicity
