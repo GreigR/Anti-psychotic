@@ -2,19 +2,22 @@
 title: "Anti-psychotic drug analysis"
 author: "Dr Greig Russell"
 date: "2 March 2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-#Anti-psychotic drug analysis
+#Introduction
 
 This analysis describes the anti-psychotic usage of 100 patients from the mental health service. It will describe the characteristics of the sample and the anti-psychotic medication prescribed for them. This description will provide the base to understand the relationships between anti-psychotic prescriptions and features of the population.
 
-##Summary
-This study has found that more females are admitted with psychosis, and these females are statistically significantly older (p = 0.008). 22% of this sample received greater than the recommended dose of anti-psychotics whilst an inpatient. The more varieties of anti-psychotic medication that a patient was prescribed, the more likely they were to exceed the maximum recommended dose (p = 0.002). There was no significant relationship between total dosage and gender (p = 0.07) or ethnicity (p = 0.22). In the sub-group who were presecribed supra-maximal dosage there was no difference by Gender (p = 0.49) or Ethnicity (p = 0.53)
+#Summary
+This study has found that more females are admitted with psychosis, and these females are statistically significantly older (p = 0.008). 22% of this sample received greater than the recommended dose of anti-psychotics whilst an inpatient. The more varieties of anti-psychotic medication that a patient was prescribed, the more likely they were to exceed the maximum recommended dose (p = 0.002). There was no significant relationship between total dosage and gender (p = 0.07) or ethnicity (p = 0.22). In the sub-group who were prescribed supra-maximal dosage there was no difference by Gender (p = 0.49) or Ethnicity (p = 0.53)
 
 There is a relationship between total dosage prescribed as an in-patient and dosage on discharge (p = 0.01). NZ Maori are statistically more likely to receive intra-muscular medication than NZ European (p = 0.04). 
 
@@ -41,10 +44,11 @@ Drug <- Drug %>%
 # summary(Drug)
 ```
 
+\pagebreak
 
-##Sample demographics
+#Sample demographics
 
-###Age distribution
+##Age distribution
 ```{r age1, warning=FALSE, message=FALSE}
 ggplot(data = Drug) +
   geom_density(aes(x = Age), fill = "red") +
@@ -71,7 +75,7 @@ Age_model <- tidy(t.test(Boy$Age, Girl$Age))
 
 As the Box plot illustrates there are more females (n = ```r Count_girl$Count```) with a higher mean age of ```r round(Count_girl$Mean_age, digit = 0)``` in this sample than males (n = ```r Count_boy$Count```) whose mean age is ```r round(Count_boy$Mean_age, digit = 0)```. This age difference is significant (p = ```r round(Age_model$p.value, digits = 3)```).  
 
-###Gender
+##Gender
 ```{r gender1, warning=FALSE, message=FALSE}
 Drug %>% 
   group_by(Gender) %>% 
@@ -82,7 +86,7 @@ Drug %>%
   theme_minimal()
 ```
 
-###Age by Gender
+##Age by Gender
 ```{r gender2, warning=FALSE, message=FALSE}
 ggplot(data = Drug) +
   geom_boxplot(aes(x = Gender, y = Age, fill = Gender)) +
@@ -90,7 +94,11 @@ ggplot(data = Drug) +
   theme_minimal()
 ```
 
-###Total regular anti-psychotic dosage by number of drug types
+\pagebreak
+
+#Anti-psychotic presecribing patterns
+
+##Total regular anti-psychotic dosage by number of drug types
 ```{r Drug1, warning=FALSE, message=FALSE}
 Poly <- Drug %>% 
   filter(Poly_Num_drugs < 4)
@@ -127,7 +135,7 @@ summary(Model1)
 Supporting the hypothesis that the number of drug types prescribed is significantly positively correlated with the total dosage of anti-psychotics received per day.
 
 
-###Total regular anti-psychotic dosage by gender
+##Total regular anti-psychotic dosage by gender
 ```{r gender1a, warning=FALSE, message=FALSE}
 ggplot(data = Poly) +
   geom_boxplot(aes(x = Gender, y = Poly_sum_reg_NZFpercentage, fill = Gender)) +
@@ -148,7 +156,7 @@ Model2 <- aov(Poly_sum_reg_NZFpercentage ~ Gender, data = Poly)
 summary(Model2)
 ```
 
-###Relationship between total anti-psychotic drug usage during an admission and ethnicity
+##Relationship between total anti-psychotic drug usage during an admission and ethnicity
 ```{r drug_ethnicity, warning=FALSE, message=FALSE}
 Drug %>% 
   ggplot(aes(x = Ethnicity, y = Poly_sum_reg_NZFpercentage, fill = Ethnicity)) +
@@ -168,7 +176,9 @@ summary(model4)
 
 Suggesting there is no difference between the drug dosage received during an admission on the basis of ethnicity
 
-###Analysis of the super maximal dosage cohort
+\pagebreak
+
+##Analysis of the super maximal dosage cohort
 
 ```{r Super_max, warning=FALSE, message=FALSE}
 Super_max_Maori <- Drug %>%
@@ -202,7 +212,7 @@ t.test(Super_max_girl$Poly_sum_reg_NZFpercentage, Super_max_boy$Poly_sum_reg_NZF
 
 
 
-###Relationship between drug levels during inpatient and on discharge
+##Relationship between drug levels during inpatient and on discharge
 ```{r discharge1, warning=FALSE, message=FALSE}
 ggplot(data = Poly, aes(x = Poly_sum_reg_NZFpercentage, y = Discharge_Reg_NZF_Percentage)) +
   geom_point() +
@@ -217,7 +227,7 @@ summary(Model3)
 
 Revealing a highly significant relationship between the doses of drugs received during an admission and those received following discharge
 
-###Relationship between Ethnicity and Depot anti-psychotic drug usage
+##Relationship between Ethnicity and Depot anti-psychotic drug usage
 ```{r depot, warning=FALSE, message=FALSE}
 Poly <- Drug %>%
   filter(Poly_Num_drugs < 4, (Ethnicity == "NZ European" | Ethnicity == "NZ Maori"))
