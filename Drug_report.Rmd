@@ -14,6 +14,8 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+\tableofcontents
+
 #Introduction
 
 This analysis describes the anti-psychotic usage of 100 patients from the mental health service. It will describe the characteristics of the sample and the anti-psychotic medication prescribed for them. This description will provide the base to understand the relationships between anti-psychotic prescriptions and features of the population.
